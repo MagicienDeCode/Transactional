@@ -1,0 +1,14 @@
+logging:
+  level:
+    xiang:
+      fr: debug
+spring:
+  flyway:
+    enabled: true
+  datasource:
+      username: mysql
+      url: jdbc:tc:mysql:5.7.8://localhost/test
+      driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+      password:
+  jpa:
+    show-sql: true
