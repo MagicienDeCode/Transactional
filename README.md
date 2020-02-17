@@ -254,5 +254,17 @@ As I have
 there is no test.  <br/>
 I see somewhere says that DataSourceTransactionManager only available for JdbcTemplate and ibatis, need JDBC3.0 
 
+## Isolation
+
+* Dirty read : read the uncommitted change of a concurrent transaction. A事务在读取某一行数据的时候，能够读到B事务还未提交的、对同一行数据的修改。
+* Non-repeatable read : get different value on re-read of a row if a concurrent transaction updates the same row and commits. 在同一个事务里，在T1时间读取到的某一行的数据，在T2时间再次读取同一行数据时，发生了变化。后者变化可能是被更新了、消失了。
+* Phantom read : get different rows after re-execution of a range query if another transaction adds or removes some rows in the range and commits. 在同一个事务里，用条件A，在T1时间查询到的数据是10行，但是在T2时间查询到的数据多于10行。需要注意的是，和 Nonrepeatable read 不同，Phantom read 在T1时读到的数据在T2时不会发生变化。注意，为何只说比10行多，那么比10行少就不是 Phantom read 了吗？因为 Nonrepeatable read 包含了数据消失的情况。
+
+| Isolation level | Dirty read | Non-repeatable read | Phantom read |
+| -------------   | ---------- | ------------------- | ------------ |
+| READ_UNCOMMITTED| may occur  | may occur           | may occur    |
+| READ_COMMITTED  |            | may occur           | may occur    | 
+| REPEATABLE_READ |            |                     | may occur    | 
+| SERIALIZABLE    |            |                     |              | 
 
 
