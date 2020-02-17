@@ -108,4 +108,33 @@ Hibernate: insert into woman (reference, id) values (?, ?)
         } catch (e: RuntimeException) {
         }
     }
+
+    /*
+    Hibernate: insert into woman (reference, id) values (?, ?)
+    Hibernate: insert into man (reference, woman_id, id) values (?, ?, ?)
+     */
+    fun nonTransactionalCallSupport() {
+        manService.propagationSupport()
+    }
+
+    // NO INSERT
+    @Transactional
+    fun transactionalCallSupport() {
+        manService.propagationSupport()
+    }
+
+    @Transactional
+    fun exceptionAfterCommit() {
+        val woman = Woman("1")
+        womanRepository.save(woman)
+        manService.propagationNested()
+        throw RuntimeException()
+    }
+
+    @Transactional
+    fun commitAfterException() {
+        manService.propagationNestedRunTimeException()
+        val woman = Woman("1")
+        womanRepository.save(woman)
+    }
 }

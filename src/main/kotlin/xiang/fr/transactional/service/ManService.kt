@@ -31,7 +31,7 @@ class ManService(
 
     // NO INSERT
     @Transactional
-    fun selfWithTransactional(){
+    fun selfWithTransactional() {
         val man = Man("1", Woman("1"))
         this.save(man)
     }
@@ -110,5 +110,25 @@ class ManService(
         val man = Man("1", Woman("1"))
         manRepository.save(man)
         throw RuntimeException("custom exception")
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    fun propagationSupport() {
+        val man = Man("1", Woman("1"))
+        manRepository.save(man)
+        throw RuntimeException("custom exception")
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    fun propagationNestedRunTimeException() {
+        val man = Man("1", Woman("1"))
+        manRepository.save(man)
+        throw RuntimeException("custom exception")
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    fun propagationNested() {
+        val man = Man("1", Woman("1"))
+        manRepository.save(man)
     }
 }

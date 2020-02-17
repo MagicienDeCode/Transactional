@@ -125,7 +125,7 @@ fun runtimeException() {
 ```
 
 ## Propagation
-
+### REQUIRED & REQUIRED_NEW
 ```$xslt
 /**
  * Support a current transaction, create a new one if none exists.
@@ -146,7 +146,7 @@ REQUIRED(TransactionDefinition.PROPAGATION_REQUIRED),
 REQUIRES_NEW(TransactionDefinition.PROPAGATION_REQUIRES_NEW),
 ```
 org.springframework.transaction.UnexpectedRollbackException: Transaction silently rolled back because it has been marked as rollback-only
-```aidl
+```xslt
 // NO INSERT TO DB
 @Transactional
 fun runtimeException() {
@@ -172,7 +172,7 @@ These two functions are in the same transaction.
 When function `runtimeException` throws an exception, it will mark current transaction should be rollback. But `callAnotherTransactionalThrowRuntimeException` catch it, so current transaction think it should commit. That's why it throws UnexpectedRollbackException .
 
 Another example with @Transactional(propagation = Propagation.REQUIRES_NEW)
-```aidl
+```xslt
 // NO INSERT TO DB
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 fun runtimeExceptionWithPropagationRequiresNew() {
@@ -198,3 +198,61 @@ Hibernate: insert into woman (reference, id) values (?, ?)
     }
 ```
 `runtimeExceptionWithPropagationRequiresNew` will rollback, but `callAnotherTransactional` will commit.
+### SUPPORTS
+```$xslt
+	/**
+	 * Support a current transaction, execute non-transactionally if none exists.
+	 * Analogous to EJB transaction attribute of the same name.
+	 * <p>Note: For transaction managers with transaction synchronization,
+	 * {@code SUPPORTS} is slightly different from no transaction at all,
+	 * as it defines a transaction scope that synchronization will apply for.
+	 * As a consequence, the same resources (JDBC Connection, Hibernate Session, etc)
+	 * will be shared for the entire specified scope. Note that this depends on
+	 * the actual synchronization configuration of the transaction manager.
+	 * @see org.springframework.transaction.support.AbstractPlatformTransactionManager#setTransactionSynchronization
+	 */
+	SUPPORTS(TransactionDefinition.PROPAGATION_SUPPORTS)
+```
+See example below
+```$xslt
+@Transactional(propagation = Propagation.SUPPORTS)
+fun propagationSupport(){
+    val man = Man("1", Woman("1"))
+    manRepository.save(man)
+    throw RuntimeException("custom exception")
+}
+
+/*
+Hibernate: insert into woman (reference, id) values (?, ?)
+Hibernate: insert into man (reference, woman_id, id) values (?, ?, ?)
+ */
+fun nonTransactionalCallSupport() {
+    manService.propagationSupport()
+}
+
+// NO INSERT
+@Transactional
+fun transactionalCallSupport() {
+    manService.propagationSupport()
+}
+```
+### NESTED
+```$xslt
+	/**
+	 * Execute within a nested transaction if a current transaction exists,
+	 * behave like {@code REQUIRED} otherwise. There is no analogous feature in EJB.
+	 * <p>Note: Actual creation of a nested transaction will only work on specific
+	 * transaction managers. Out of the box, this only applies to the JDBC
+	 * DataSourceTransactionManager. Some JTA providers might support nested
+	 * transactions as well.
+	 * @see org.springframework.jdbc.datasource.DataSourceTransactionManager
+	 */
+	NESTED(TransactionDefinition.PROPAGATION_NESTED)
+```
+As I have 
+`org.springframework.transaction.NestedTransactionNotSupportedException: JpaDialect does not support savepoints - check your JPA provider's capabilities`
+there is no test.  <br/>
+I see somewhere says that DataSourceTransactionManager only available for JdbcTemplate and ibatis, need JDBC3.0 
+
+
+

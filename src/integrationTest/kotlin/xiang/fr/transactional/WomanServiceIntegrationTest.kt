@@ -40,4 +40,23 @@ class WomanServiceIntegrationTest {
     fun `two transactionals with one default propagation and another new`() {
         womanService.callAnotherTransactional()
     }
+
+    /*
+    @Test
+    fun `non transactional call propagation support`(){
+        womanService.nonTransactionalCallSupport()
+    }
+
+    @Test
+    fun `transactional call propagation support`(){
+        womanService.transactionalCallSupport()
+    }
+    */
+
+    /*
+    @Test
+    fun `nested exception after commit`(){
+        womanService.exceptionAfterCommit()
+    }
+     */
 }

@@ -65,8 +65,10 @@ class ManServiceIntegrationTest {
         manService.runtimeException()
     }
 
+    /*
     @Test
     fun `self with transactional`(){
         manService.selfWithTransactional()
     }
+     */
 }
