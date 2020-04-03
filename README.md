@@ -90,7 +90,7 @@ Hibernate: insert into man (reference, woman_id, id) values (?, ?, ?)
 ```
 
 ### 1.6 Throws exception but do not rollback <br/> 抛出自定义异常是不会让事务回滚的
-![alt text](https://github.com/MagicienDeCode/images/blob/master/transactional/exception_relation.png "image")
+![alt text](https://github.com/MagicienDeCode/images/blob/master/transactional/exception_relation.png "Exception relation")
 By default, a transaction will be rolling back on RuntimeException and Error 
 but not on checked exceptions (business exceptions). 
 <br/>
@@ -190,6 +190,7 @@ fun callAnotherTransactionalThrowRuntimeException(){
 ```
 
 - REQUIRES_NEW 两个方法都有自己的事务，所以不会互相影响。
+![alt text](https://github.com/MagicienDeCode/images/blob/master/transactional/propagation_required_new.png "REQUIRES_NEW")
 These two functions are in the same transaction. When function `runtimeException` throws an exception, 
 it will mark current transaction should be rollback. But `callAnotherTransactionalThrowRuntimeException` catch it, 
 so current transaction think it should commit. That's why it throws UnexpectedRollbackException .
