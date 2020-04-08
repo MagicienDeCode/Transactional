@@ -164,7 +164,7 @@ REQUIRED(TransactionDefinition.PROPAGATION_REQUIRED),
  * made available to it (which is server-specific in standard Java EE).
  * @see org.springframework.transaction.jta.JtaTransactionManager#setTransactionManager
  */
-REQUIRES_NEW(TransactionDefinition.PROPAGATION_REQUIRES_NEW),
+REQUIRED_NEW(TransactionDefinition.PROPAGATION_REQUIRED_NEW),
 ```
 
 - REQUIRED 如果两个方法共享一个实务，一个需要回滚，一个需要提交，就会出现`UnexpectedRollbackException`
@@ -189,16 +189,16 @@ fun callAnotherTransactionalThrowRuntimeException(){
 }
 ```
 
-- REQUIRES_NEW 两个方法都有自己的事务，所以不会互相影响。
+- REQUIRED_NEW 两个方法都有自己的事务，所以不会互相影响。
 ![](https://github.com/MagicienDeCode/images/blob/master/transactional/propagation_required_new.png)
 These two functions are in the same transaction. When function `runtimeException` throws an exception, 
 it will mark current transaction should be rollback. But `callAnotherTransactionalThrowRuntimeException` catch it, 
 so current transaction think it should commit. That's why it throws UnexpectedRollbackException .
-Another example with @Transactional(propagation = Propagation.REQUIRES_NEW)
+Another example with @Transactional(propagation = Propagation.REQUIRED_NEW)
 ```kotlin
 // NO INSERT TO DB
-@Transactional(propagation = Propagation.REQUIRES_NEW)
-fun runtimeExceptionWithPropagationRequiresNew() {
+@Transactional(propagation = Propagation.REQUIRED_NEW)
+fun runtimeExceptionWithPropagationRequiredNew() {
     val man = Man("1", Woman("1"))
     manRepository.save(man)
     throw RuntimeException("custom exception")
@@ -215,11 +215,11 @@ Hibernate: insert into woman (reference, id) values (?, ?)
         val woman = Woman("1")
         womanRepository.save(woman)
         try {
-            manService.runtimeExceptionWithPropagationRequiresNew()
+            manService.runtimeExceptionWithPropagationRequiredNew()
         }catch (e:RuntimeException){}
     }
 ```
-`runtimeExceptionWithPropagationRequiresNew` will rollback, but `callAnotherTransactional` will commit.
+`runtimeExceptionWithPropagationRequiredNew` will rollback, but `callAnotherTransactional` will commit.
 
 ### 2.2 SUPPORTS 如果当前有事务就用，如果没有就不用事务的
 ```$java
