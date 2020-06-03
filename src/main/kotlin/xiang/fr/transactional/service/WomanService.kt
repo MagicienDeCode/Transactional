@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import xiang.fr.transactional.domain.Woman
 import xiang.fr.transactional.repository.WomanRepository
+import java.util.*
 
 @Service
 class WomanService(
@@ -135,6 +136,13 @@ Hibernate: insert into woman (reference, id) values (?, ?)
     fun commitAfterException() {
         manService.propagationNestedRunTimeException()
         val woman = Woman("1")
+        womanRepository.save(woman)
+    }
+
+    @Transactional
+    fun modifyAndSave(uuid: UUID) {
+        val woman = womanRepository.findById(uuid).get()
+        woman.reference = "anna"
         womanRepository.save(woman)
     }
 }

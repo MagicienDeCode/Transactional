@@ -300,4 +300,50 @@ removes some rows in the range and commits.
 | REPEATABLE_READ |            |                     | may occur    | 
 | SERIALIZABLE    |            |                     |              | 
 
+### Bonus 
 
+- @Transactional(readOnly = true) call another @Transactional, modification won't be saved
+```$java
+// this function just change the reference to anna
+@Transactional
+fun modifyAndSave(uuid: UUID) {
+    val woman = womanRepository.findById(uuid).get()
+    woman.reference = "anna"
+    womanRepository.save(woman)
+}
+```
+```$java
+// readonly transactional call modifyAndSave
+@Transactional(readOnly = true)
+fun testReadOnly(uuid: UUID) {
+    println("test begin")
+    womanService.modifyAndSave(uuid)
+    println("test end")
+}
+```
+Here is the integration test
+```$java
+@Test
+fun `readonly call another transactional won't change`() {
+    val woman = womenRepository.save(Woman("111"))
+    println("before is: ${woman.reference}")
+    testService.testReadOnly(woman.id)
+    val womanAfter = womenRepository.findById(woman.id).get()
+    println("after is: ${womanAfter.reference}")
+}
+/*
+Hibernate: select woman0_.id as id1_1_0_, woman0_.created_at as created_2_1_0_, woman0_.reference as referenc3_1_0_, woman0_.updated_at as updated_4_1_0_ from woman woman0_ where woman0_.id=?
+Hibernate: insert into woman (reference, id) values (?, ?)
+before is: 111
+test begin
+Hibernate: select woman0_.id as id1_1_0_, woman0_.created_at as created_2_1_0_, woman0_.reference as referenc3_1_0_, woman0_.updated_at as updated_4_1_0_ from woman woman0_ where woman0_.id=?
+test end
+Hibernate: select woman0_.id as id1_1_0_, woman0_.created_at as created_2_1_0_, woman0_.reference as referenc3_1_0_, woman0_.updated_at as updated_4_1_0_ from woman woman0_ where woman0_.id=?
+after is: 111
+*/
+```
+We see the reference doesn't chang.
+
+- in order to fix it: 
+    1. Solution 1 : remove **readonly** 
+    2. Solution 2 : keep readonly, but add **Propagation.REQUIRES_NEW** to other functions.
